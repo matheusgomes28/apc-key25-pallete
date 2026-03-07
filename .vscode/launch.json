@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "MIDI",
+      "type": "codelldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/unix-deb-ninja/apc25_pallete/apc25_pallete",
+      "args": [
+        "--device-name",
+        "APC Key 25:APC Key 25 MIDI 1 20:0"
+      ],
+      "stopOnEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "preLaunchTask": ""
+    }
+  ],
+  "inputs": []
+}
