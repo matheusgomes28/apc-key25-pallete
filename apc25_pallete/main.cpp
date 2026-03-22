@@ -6,6 +6,7 @@
 #include <cxxopts.hpp>
 
 #include <array>
+#include <optional>
 #include <unordered_map>
 
 namespace {
@@ -55,9 +56,27 @@ namespace {
         }
     }
 
-    enum class ButtonState { Off, Green, GreenBlink, Red, RedBlink, Yellow, YellowBlink };
+    enum class ButtonState : unsigned char {
+        Off,
+        Green,
+        GreenBlink,
+        Red,
+        RedBlink,
+        Yellow,
+        YellowBlink,
+    };
 
     // clang-format off
+    static const std::map<ButtonState, unsigned char> COLOR_MESSAGES{{
+     {ButtonState::Off,        0x00},
+     {ButtonState::Green,      0x01},
+     {ButtonState::GreenBlink, 0x02},
+     {ButtonState::Red,        0x03},
+     {ButtonState::RedBlink,   0x04},
+     {ButtonState::Yellow,     0x05},
+     {ButtonState::Yellow,     0x06},
+    }};
+
     static constexpr std::array<ButtonState, 8 * 5> INITIAL_STATE{
       // Row 1
       ButtonState::Green,
@@ -107,6 +126,18 @@ namespace {
     };
     // clang-format on
 
+
+    std::optional<std::vector<unsigned char>> makeColorPackets(unsigned char knob_position, ButtonState button_state) {
+
+        auto const found = COLOR_MESSAGES.find(button_state);
+        if (found == end(COLOR_MESSAGES)) {
+            return std::nullopt;
+        }
+
+        return std::optional<std::vector<unsigned char>>(
+            {0x90, knob_position, static_cast<unsigned char>(button_state)});
+    }
+
     void print_devices(std::vector<std::string> const& devices) {
         for (auto const& device_name : devices) {
             fmt::println("device name: {}", device_name);
@@ -115,6 +146,7 @@ namespace {
 } // namespace
 
 int main(int argc, const char** argv) {
+    static_assert(sizeof(INITIAL_STATE) == 40, "Initial colours must have size of 40!");
 
     auto const maybe_args = parse_args(argc, argv);
     if (!maybe_args) {
@@ -141,7 +173,6 @@ int main(int argc, const char** argv) {
         }
     }
 
-
     // MODE: only show devices
     if (maybe_args->show_devices) {
         print_devices(devices);
@@ -158,47 +189,19 @@ int main(int argc, const char** argv) {
 
         midi_out.openPort(found->second);
 
-        // Note On: 144, 64, 90
-        // message[0] = 144;
-        // message[1] = 64;
-        // message[2] = 90;
-        // midiout->sendMessage( &message );
-
-        std::vector<unsigned char> message{0x90, 0x00, 0x00};
         for (std::size_t i = 0; i < INITIAL_STATE.size(); ++i) {
 
-            ButtonState state = INITIAL_STATE[i];
-            message[1]        = i;
-            spdlog::info("message for position {} sent", message[1]);
-
-            switch (state) {
-            case ButtonState::Off:
-                message[2] = 0x00;
-                break;
-            case ButtonState::Green:
-                message[2] = 0x01;
-                break;
-            case ButtonState::GreenBlink:
-                message[2] = 0x02;
-                break;
-            case ButtonState::Red:
-                message[2] = 0x03;
-                break;
-            case ButtonState::RedBlink:
-                message[2] = 0x04;
-                break;
-            case ButtonState::Yellow:
-                message[2] = 0x05;
-                break;
-            case ButtonState::YellowBlink:
-                message[2] = 0x06;
-                break;
+            auto maybe_packets = makeColorPackets(static_cast<unsigned char>(i), INITIAL_STATE[i]);
+            if (!maybe_packets) {
+                spdlog::error("could not get a valid message for");
+                return -1;
             }
-            midi_out.sendMessage(&message);
+
+            midi_out.sendMessage(&(*maybe_packets));
+            spdlog::info("message for position {} sent", maybe_packets->at(1));
         }
     }
 
     midi_out.closePort();
-
     return 0;
 }
