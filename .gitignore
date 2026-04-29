@@ -2,3 +2,4 @@
 build
 conan/deb
 conan/rel
+**/.qmlls.ini
