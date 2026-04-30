@@ -7,6 +7,7 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 add_subdirectory(apc25_pallete)
 add_subdirectory(apc25_editor)
+add_subdirectory(common)
 
 if(BUILD_TESTING)
   message(STATUS "!!! Building Tests")

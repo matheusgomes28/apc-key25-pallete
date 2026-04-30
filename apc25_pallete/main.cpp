@@ -1,3 +1,5 @@
+#include <common/button_state.hpp>
+
 #include <RtMidi.h>
 #include <fmt/base.h>
 #include <fmt/format.h>
@@ -7,7 +9,6 @@
 
 #include <array>
 #include <optional>
-#include <unordered_map>
 
 namespace {
 
@@ -56,78 +57,68 @@ namespace {
         }
     }
 
-    enum class ButtonState : unsigned char {
-        Off,
-        Green,
-        GreenBlink,
-        Red,
-        RedBlink,
-        Yellow,
-        YellowBlink,
-    };
-
     // clang-format off
-    static const std::map<ButtonState, unsigned char> COLOR_MESSAGES{{
-     {ButtonState::Off,        0x00},
-     {ButtonState::Green,      0x01},
-     {ButtonState::GreenBlink, 0x02},
-     {ButtonState::Red,        0x03},
-     {ButtonState::RedBlink,   0x04},
-     {ButtonState::Yellow,     0x05},
-     {ButtonState::Yellow,     0x06},
+    static const std::map<apc25::ButtonState, unsigned char> COLOR_MESSAGES{{
+     {apc25::ButtonState::Off,        0x00},
+     {apc25::ButtonState::Green,      0x01},
+     {apc25::ButtonState::GreenBlink, 0x02},
+     {apc25::ButtonState::Red,        0x03},
+     {apc25::ButtonState::RedBlink,   0x04},
+     {apc25::ButtonState::Yellow,     0x05},
+     {apc25::ButtonState::Yellow,     0x06},
     }};
 
-    static constexpr std::array<ButtonState, 8 * 5> INITIAL_STATE{
+    static constexpr std::array<apc25::ButtonState, 8 * 5> INITIAL_STATE{
       // Row 1
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
       // Row 2
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
       // Row 3
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
       // Row 4
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
       // Row 5
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
-      ButtonState::Yellow,
-      ButtonState::Green,
-      ButtonState::Red,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
+      apc25::ButtonState::Yellow,
+      apc25::ButtonState::Green,
+      apc25::ButtonState::Red,
     };
     // clang-format on
 
 
-    std::optional<std::vector<unsigned char>> makeColorPackets(unsigned char knob_position, ButtonState button_state) {
+    std::optional<std::vector<unsigned char>> makeColorPackets(unsigned char knob_position, apc25::ButtonState button_state) {
 
         auto const found = COLOR_MESSAGES.find(button_state);
         if (found == end(COLOR_MESSAGES)) {

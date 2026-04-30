@@ -10,6 +10,7 @@ target_sources(apc25_pallete PRIVATE main.cpp)
 target_link_libraries(apc25_pallete
   PRIVATE
     RtMidi::rtmidi
+    apc25_common
     fmt::fmt
     cxxopts::cxxopts
     spdlog::spdlog)
